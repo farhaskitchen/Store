@@ -9,3 +9,13 @@
   }
 ]
 
+[
+  {
+    "id": "nessiebot",
+    "name": "Nessie",
+    "category": "Fun",
+    "description": "A funbot with 50+ commands including systems for money, inventory, work, etc.",
+    "avatar": "https://raw.githubusercontent.com/farhaskitchen/Store/refs/heads/main/bots/nullchat/nessie/icon1.png",
+    "file": "https://raw.githubusercontent.com/farhaskitchen/Store/refs/heads/main/bots/nullchat/nessie/main.py"
+  }
+]
