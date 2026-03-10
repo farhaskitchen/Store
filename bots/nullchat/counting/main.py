@@ -1,31 +1,58 @@
 import pyrode
+import json
 
-bot = pyrode.Bot() # No prefix needed if it's a pure counting bot
-count = 0          # This tracks the current number in the sequence
+bot = pyrode.Bot()
+
+async def get_state():
+    raw = await bot.files.read("state.json")
+    if raw is None:
+        return {"count": 0, "last_user_id": None, "high_score": 0}
+    return json.loads(raw)
+
+async def set_state(count, user_id, high_score):
+    data = {
+        "count": count, 
+        "last_user_id": user_id, 
+        "high_score": high_score
+    }
+    await bot.files.write("state.json", json.dumps(data))
 
 @bot.event
 async def on_message(message):
-    # 1. Ignore the bot's own messages to avoid infinite loops
     if message.author.is_bot:
         return
 
-    global count
-    
     try:
-        # 2. Convert the message content to an integer
-        # .strip() removes any accidental spaces
         num = int(message.content.strip())
+        state = await get_state()
+        
+        count = state["count"]
+        last_user = state["last_user_id"]
+        high_score = state["high_score"]
 
-        # 3. Check if the number is correct
+        # 1. Anti-Spam Check
+        if message.author.id == last_user:
+            await set_state(0, None, high_score)
+            await message.add_reaction("🚫")
+            await message.reply(f"Double counting! Reset to 1. (High Score: **{high_score}**)")
+            return
+
+        # 2. Correct Number Check
         if num == count + 1:
-            count += 1
+            new_count = num
+            # Update high score if broken
+            if new_count > high_score:
+                high_score = new_count
+                await message.add_reaction("👑") # New Record!
+            
+            await set_state(new_count, message.author.id, high_score)
             await message.add_reaction("✅")
         else:
-            # 4. Reset on failure
-            count = 0
+            # 3. Wrong Number - Reset
+            await set_state(0, None, high_score)
             await message.add_reaction("❌")
-            await message.reply(f"Wrong number! The count has been reset. Next number is **1**.")
+            await message.reply(f"Wrong! Reset to 1. The High Score remains **{high_score}**.")
             
     except ValueError:
-        # 5. Handle non-number messages (optional: delete or warn)
-        await message.reply("Please only send numbers in this channel!")
+        # Ignore non-numbers
+        pass
