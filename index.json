@@ -6,10 +6,7 @@
     "description": "A persistent counting game with anti-spam and high scores. Don't break the chain!",
     "avatar": "https://raw.githubusercontent.com/farhaskitchen/Store/main/bots/nullchat/counting/icon.png",
     "file": "https://raw.githubusercontent.com/farhaskitchen/Store/main/bots/nullchat/counting/main.py"
-  }
-]
-
-[
+  },
   {
     "id": "nessiebot",
     "name": "Nessie",
